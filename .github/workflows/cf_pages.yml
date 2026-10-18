@@ -9,7 +9,10 @@ permissions:
     deployments: write
 
 jobs:
+    # This deploy targets the upstream project's Cloudflare account. Do not
+    # run it on forks unless they intentionally configure their own workflow.
     build-and-deploy:
+        if: github.repository == 'Spu7Nix/obamify'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
