@@ -407,11 +407,24 @@ pub fn process_genetic<S: ProgressSink>(
         ((2.0_f64 / resolution).ln() / 0.96_f64.ln()).ceil().max(1.0) as usize;
     let max_generations = cooling_steps.saturating_add(12).max(32);
     let mut generation = 0usize;
+    #[cfg(not(target_arch = "wasm32"))]
+    let mut cancel_check_counter = 0usize;
 
     loop {
         generation += 1;
         let mut swaps_made = 0;
         for _ in 0..swaps_per_generation {
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                cancel_check_counter += 1;
+                if cancel_check_counter >= 4096 {
+                    cancel_check_counter = 0;
+                    if cancel.load(std::sync::atomic::Ordering::Relaxed) {
+                        tx.send(ProgressMsg::Cancelled);
+                        return Ok(());
+                    }
+                }
+            }
             let apos = rng.gen_range(0..pixels.len() as u32) as usize;
             let ax = apos as u16 % settings.sidelen as u16;
             let ay = apos as u16 / settings.sidelen as u16;
