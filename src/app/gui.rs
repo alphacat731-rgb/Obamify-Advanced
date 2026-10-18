@@ -693,8 +693,13 @@ impl App for ObamifyApp {
                                                     settings.algorithm,
                                                     calculate::util::Algorithm::Optimal
                                                 );
-                                                let max_resolution = if is_optimal { 128 } else { 512 };
-                                                settings.sidelen = settings.sidelen.clamp(64, max_resolution);
+                                                let (min_resolution, max_resolution, slider_step) = if is_optimal {
+                                                    (16, 32, 8.0)
+                                                } else {
+                                                    (64, 512, 32.0)
+                                                };
+                                                settings.sidelen =
+                                                    settings.sidelen.clamp(min_resolution, max_resolution);
 
                                                 let slider_w = ui.available_width().min(300.0);
                                                 ui.horizontal(|ui| {
@@ -721,13 +726,18 @@ impl App for ObamifyApp {
                                                     [slider_w, 24.0],
                                                     egui::Slider::new(
                                                         &mut settings.sidelen,
-                                                        64..=max_resolution,
+                                                        min_resolution..=max_resolution,
                                                     )
-                                                    .step_by(32.0)
+                                                    .step_by(slider_step)
                                                     .show_value(false)
                                                     .text("quality"),
                                                 );
-                                                if settings.sidelen >= 384 {
+                                                if is_optimal {
+                                                    ui.colored_label(
+                                                        Color32::from_rgb(255, 190, 90),
+                                                        "Optimal matching is capped at 32 × 32; use fast for more detail.",
+                                                    );
+                                                } else if settings.sidelen >= 384 {
                                                     ui.colored_label(
                                                         Color32::from_rgb(255, 190, 90),
                                                         "High resolution can take noticeably longer.",
@@ -763,13 +773,14 @@ impl App for ObamifyApp {
                                                     .show_ui(ui, |ui| {
                                                         if ui
                                                             .add_enabled(
-                                                                settings.sidelen <= 128,
+                                                                settings.sidelen <= 64,
                                                                 egui::Button::new("optimal algorithm"),
                                                             )
                                                             .clicked()
                                                         {
                                                             settings.algorithm =
                                                                 calculate::util::Algorithm::Optimal;
+                                                            settings.sidelen = 32;
                                                         }
                                                         if ui.button("fast algorithm").clicked() {
                                                             settings.algorithm =
