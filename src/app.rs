@@ -251,6 +251,23 @@ impl ObamifyApp {
     }
 
     pub fn new(cc: &CreationContext<'_>) -> Self {
+        // Obamify Advanced theme: dark slate surfaces with a bright lime accent.
+        let mut visuals = egui::Visuals::dark();
+        visuals.panel_fill = egui::Color32::from_rgb(13, 17, 25);
+        visuals.window_fill = egui::Color32::from_rgb(20, 27, 38);
+        visuals.extreme_bg_color = egui::Color32::from_rgb(8, 11, 17);
+        visuals.faint_bg_color = egui::Color32::from_rgb(28, 36, 50);
+        visuals.window_stroke.color = egui::Color32::from_rgb(53, 67, 82);
+        visuals.widgets.inactive.bg_fill = egui::Color32::from_rgb(34, 43, 57);
+        visuals.widgets.inactive.fg_stroke.color = egui::Color32::from_rgb(224, 231, 240);
+        visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(50, 69, 61);
+        visuals.widgets.hovered.fg_stroke.color = egui::Color32::from_rgb(244, 255, 226);
+        visuals.widgets.active.bg_fill = egui::Color32::from_rgb(163, 230, 53);
+        visuals.widgets.active.fg_stroke.color = egui::Color32::from_rgb(18, 26, 15);
+        visuals.selection.bg_fill = egui::Color32::from_rgb(108, 160, 40);
+        visuals.selection.stroke.color = egui::Color32::from_rgb(236, 255, 216);
+        cc.egui_ctx.set_visuals(visuals);
+
         let rs = cc
             .wgpu_render_state
             .as_ref()

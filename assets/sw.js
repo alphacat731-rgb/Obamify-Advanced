@@ -1,20 +1,55 @@
-var cacheName = "obamify-pwa"
-var filesToCache = [] //["./", "./index.html", "./obamify.js", "./obamify_bg.wasm"]
+const CACHE_NAME = "obamify-advanced-v2";
+const APP_SHELL = [
+    "./",
+    "./index.html",
+    "./assets/android-chrome-192x192.png",
+    "./assets/android-chrome-512x512.png"
+];
 
-/* Start the service worker and cache all of the app's content */
-self.addEventListener("install", function (e) {
-    e.waitUntil(
-        caches.open(cacheName).then(function (cache) {
-            return cache.addAll(filesToCache)
-        })
-    )
-})
+self.addEventListener("install", (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    );
+    self.skipWaiting();
+});
 
-/* Serve cached content when offline */
-self.addEventListener("fetch", function (e) {
-    e.respondWith(
-        caches.match(e.request).then(function (response) {
-            return response || fetch(e.request)
-        })
-    )
-})
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        caches.keys()
+            .then((keys) => Promise.all(
+                keys
+                    .filter((key) => key.startsWith("obamify") && key !== CACHE_NAME)
+                    .map((key) => caches.delete(key))
+            ))
+            .then(() => self.clients.claim())
+    );
+});
+
+self.addEventListener("fetch", (event) => {
+    const request = event.request;
+    if (request.method !== "GET") return;
+
+    const url = new URL(request.url);
+    if (url.origin !== self.location.origin) return;
+
+    event.respondWith((async () => {
+        const cached = await caches.match(request);
+        try {
+            // Prefer current deployed assets online and cache successful same-origin responses.
+            const response = await fetch(request);
+            if (response && response.ok && response.type !== "opaque") {
+                const cache = await caches.open(CACHE_NAME);
+                await cache.put(request, response.clone());
+            }
+            if (response && response.ok) return response;
+            return cached || response;
+        } catch (error) {
+            if (cached) return cached;
+            if (request.mode === "navigate") {
+                const shell = await caches.match("./index.html");
+                if (shell) return shell;
+            }
+            throw error;
+        }
+    })());
+});

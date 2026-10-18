@@ -686,17 +686,70 @@ impl App for ObamifyApp {
                                             egui::vec2(max_w, 0.0),
                                             egui::Layout::top_down(egui::Align::Min),
                                             |ui| {
-                                                let slider_w = ui.available_width().min(260.0);
+                                                // Optimal matching grows very quickly with image size.
+                                                // Keep it in the low-resolution range; the adaptive fast
+                                                // algorithm is the recommended choice for high-resolution work.
+                                                let is_optimal = matches!(
+                                                    settings.algorithm,
+                                                    calculate::util::Algorithm::Optimal
+                                                );
+                                                let (min_resolution, max_resolution, slider_step) = if is_optimal {
+                                                    (16, 32, 8.0)
+                                                } else {
+                                                    (64, 512, 32.0)
+                                                };
+                                                settings.sidelen =
+                                                    settings.sidelen.clamp(min_resolution, max_resolution);
+
+                                                let slider_w = ui.available_width().min(300.0);
+                                                ui.horizontal(|ui| {
+                                                    ui.label(
+                                                        egui::RichText::new("RESOLUTION")
+                                                            .strong()
+                                                            .color(Color32::from_rgb(188, 201, 217)),
+                                                    );
+                                                    ui.with_layout(
+                                                        egui::Layout::right_to_left(egui::Align::Center),
+                                                        |ui| {
+                                                            ui.label(
+                                                                egui::RichText::new(format!(
+                                                                    "{} × {}",
+                                                                    settings.sidelen, settings.sidelen
+                                                                ))
+                                                                .strong()
+                                                                .color(Color32::from_rgb(163, 230, 53)),
+                                                            );
+                                                        },
+                                                    );
+                                                });
                                                 ui.add_sized(
-                                                    [slider_w, 20.0],
+                                                    [slider_w, 24.0],
                                                     egui::Slider::new(
                                                         &mut settings.sidelen,
-                                                        64..=256,
+                                                        min_resolution..=max_resolution,
                                                     )
-                                                    .text("resolution"),
+                                                    .step_by(slider_step)
+                                                    .show_value(false)
+                                                    .text("quality"),
                                                 );
+                                                if is_optimal {
+                                                    ui.colored_label(
+                                                        Color32::from_rgb(255, 190, 90),
+                                                        "Optimal matching is capped at 32 × 32; use fast for more detail.",
+                                                    );
+                                                } else if settings.sidelen >= 384 {
+                                                    ui.colored_label(
+                                                        Color32::from_rgb(255, 190, 90),
+                                                        "High resolution can take noticeably longer.",
+                                                    );
+                                                } else if settings.sidelen > 128 {
+                                                    ui.colored_label(
+                                                        Color32::from_rgb(188, 201, 217),
+                                                        "Use the fast algorithm above 128 × 128.",
+                                                    );
+                                                }
 
-                                                let slider_w = ui.available_width().min(260.0);
+                                                let slider_w = ui.available_width().min(300.0);
                                                 ui.add_sized(
                                                     [slider_w, 20.0],
                                                     egui::Slider::new(
@@ -706,7 +759,7 @@ impl App for ObamifyApp {
                                                     .text("proximity importance"),
                                                 );
 
-                                                let mut algorithm = match settings.algorithm {
+                                                let algorithm = match settings.algorithm {
                                                     calculate::util::Algorithm::Optimal => {
                                                         "optimal algorithm"
                                                     }
@@ -718,14 +771,18 @@ impl App for ObamifyApp {
                                                 egui::ComboBox::from_id_salt("algorithm_select")
                                                     .selected_text(algorithm)
                                                     .show_ui(ui, |ui| {
-                                                        if ui.button("optimal algorithm").clicked()
+                                                        if ui
+                                                            .add_enabled(
+                                                                settings.sidelen <= 64,
+                                                                egui::Button::new("optimal algorithm"),
+                                                            )
+                                                            .clicked()
                                                         {
-                                                            algorithm = "optimal algorithm";
                                                             settings.algorithm =
                                                                 calculate::util::Algorithm::Optimal;
+                                                            settings.sidelen = 32;
                                                         }
                                                         if ui.button("fast algorithm").clicked() {
-                                                            algorithm = "fast algorithm";
                                                             settings.algorithm =
                                                                 calculate::util::Algorithm::Genetic;
                                                         }

@@ -3,32 +3,32 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 <!-- Disable zooming: -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <head>
-    <title>obamify</title>
+    <title>Obamify Advanced</title>
 
-    <meta name="description" content="revolutionary new technology that turns any image into obama">
-    <meta name="keywords" content="image processing, image morphing, optimal transport, meme generator">
-    <meta name="author" content="Spu7Nix">
+    <meta name="description" content="A refreshed, higher-resolution image transformation playground built with Rust and WebAssembly.">
+    <meta name="keywords" content="image processing, image morphing, meme generator, Rust, WebAssembly">
+    <meta name="author" content="alpha_cat">
     <meta name="robots" content="index, follow">
 
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://obamify.com/">
-    <meta property="og:title" content="obamify">
-    <meta property="og:description" content="revolutionary new technology that turns any image into obama">
-    <meta property="og:image" content="https://obamify.com/assets/android-chrome-512x512.png">
+    <meta property="og:url" content="https://alphacat731-rgb.github.io/Obamify-Advanced/">
+    <meta property="og:title" content="Obamify Advanced">
+    <meta property="og:description" content="A refreshed, higher-resolution image transformation playground built with Rust and WebAssembly.">
+    <meta property="og:image" content="https://alphacat731-rgb.github.io/Obamify-Advanced/assets/android-chrome-512x512.png">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
-    <meta property="og:site_name" content="obamify">
+    <meta property="og:site_name" content="Obamify Advanced">
 
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://obamify.com/">
-    <meta property="twitter:title" content="obamify">
-    <meta property="twitter:description" content="revolutionary new technology that turns any image into obama">
-    <meta property="twitter:image" content="https://obamify.com/assets/android-chrome-512x512.png">
+    <meta property="twitter:url" content="https://alphacat731-rgb.github.io/Obamify-Advanced/">
+    <meta property="twitter:title" content="Obamify Advanced">
+    <meta property="twitter:description" content="A refreshed, higher-resolution image transformation playground built with Rust and WebAssembly.">
+    <meta property="twitter:image" content="https://alphacat731-rgb.github.io/Obamify-Advanced/assets/android-chrome-512x512.png">
 
-    <meta name="application-name" content="obamify">
+    <meta name="application-name" content="Obamify Advanced">
     <meta name="format-detection" content="telephone=no">
 
     <!-- config for our rust wasm binary. go to https://trunkrs.dev/assets/#rust for more customization -->
@@ -55,8 +55,8 @@
 
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#404040">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#0b1019">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b1019">
 
     <style>
         html {
@@ -67,14 +67,14 @@
         body {
             /* Light mode background color for what is not covered by the egui canvas,
             or where the egui canvas is translucent. */
-            background: #909090;
+            background: #0b1019;
         }
 
         @media (prefers-color-scheme: dark) {
             body {
                 /* Dark mode background color for what is not covered by the egui canvas,
                 or where the egui canvas is translucent. */
-                background: #404040;
+                background: #0b1019;
             }
         }
 
@@ -183,8 +183,9 @@
             justify-content: center;
             width: 48px;
             height: 48px;
-            background-color: rgba(0, 0, 0, 1.0);
-            border-radius: 8px;
+            background-color: rgba(17, 24, 39, 0.96);
+            border: 1px solid rgba(163, 230, 53, 0.22);
+            border-radius: 12px;
             transition: all 0.2s ease;
             text-decoration: none;
             overflow: visible;
@@ -192,7 +193,7 @@
 
         .icon-link:hover {
             transform: scale(1.1);
-            background-color: rgba(0, 0, 0, 1.0);
+            background-color: rgba(17, 24, 39, 0.96);
         }
 
         .icon-link img {
@@ -205,7 +206,7 @@
             position: absolute;
             left: 100%;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(17, 24, 39, 0.96);
             color: white;
             padding: 8px 8px;
             padding-left: 8px;
@@ -255,13 +256,13 @@
 
     <!-- Bottom-left corner icons -->
     <div class="bottom-left-icons">
-        <a href="https://github.com/Spu7Nix/obamify" class="icon-link" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/alphacat731-rgb/Obamify-Advanced" class="icon-link" target="_blank" rel="noopener noreferrer">
             <img src="assets/github-mark-white.svg" alt="source code" />
             <span class="icon-text">source code</span>
         </a>
-        <a href="https://spu7nix.net" class="icon-link" target="_blank" rel="noopener noreferrer">
-            <img src="assets/pfp_transparent.png" alt="Spu7Nix" />
-            <span class="icon-text">my website</span>
+        <a href="https://github.com/alphacat731-rgb" class="icon-link" target="_blank" rel="noopener noreferrer">
+            <img src="https://github.com/alphacat731-rgb.png?size=96" alt="alpha_cat GitHub profile" />
+            <span class="icon-text">creator profile</span>
         </a>
     </div>
     <!--Register Service Worker. this will cache the wasm / js scripts for offline use (for PWA functionality). -->
@@ -349,8 +350,8 @@
 
                     await navigator.share({
                         files: [file],
-                        title: 'obamification',
-                        text: 'made with https://obamify.com'
+                        title: 'Obamify Advanced',
+                        text: 'made with https://alphacat731-rgb.github.io/Obamify-Advanced/'
                     });
                 } catch (error) {
                     if (error.name !== 'AbortError') {
