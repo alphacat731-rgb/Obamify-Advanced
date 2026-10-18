@@ -355,11 +355,10 @@ const MIN_SWAPS_PER_PIXEL: usize = 16;
 // the swap count linearly with every added pixel.
 fn adaptive_swaps_per_generation(pixel_count: usize) -> usize {
     let pixel_count = pixel_count.max(1);
-    let swaps_per_pixel = (SWAPS_PER_GENERATION_PER_PIXEL
-        * REFERENCE_RESOLUTION
-        * REFERENCE_RESOLUTION
-        / pixel_count)
-        .clamp(MIN_SWAPS_PER_PIXEL, SWAPS_PER_GENERATION_PER_PIXEL);
+    let swaps_per_pixel =
+        (SWAPS_PER_GENERATION_PER_PIXEL * REFERENCE_RESOLUTION * REFERENCE_RESOLUTION
+            / pixel_count)
+            .clamp(MIN_SWAPS_PER_PIXEL, SWAPS_PER_GENERATION_PER_PIXEL);
     swaps_per_pixel.saturating_mul(pixel_count)
 }
 
@@ -403,8 +402,9 @@ pub fn process_genetic<S: ProgressSink>(
     // Cool the search radius faster at high resolutions, and cap the run so
     // a local minimum cannot leave the processing job spinning forever.
     let resolution = settings.sidelen.max(2) as f64;
-    let cooling_steps =
-        ((2.0_f64 / resolution).ln() / 0.96_f64.ln()).ceil().max(1.0) as usize;
+    let cooling_steps = ((2.0_f64 / resolution).ln() / 0.96_f64.ln())
+        .ceil()
+        .max(1.0) as usize;
     let max_generations = cooling_steps.saturating_add(12).max(32);
     let mut generation = 0usize;
     #[cfg(not(target_arch = "wasm32"))]
@@ -540,7 +540,6 @@ pub fn process<S: ProgressSink>(
         Algorithm::Genetic => process_genetic(unprocessed, settings, tx),
     }
 }
-
 
 #[cfg(test)]
 mod adaptive_budget_tests {
