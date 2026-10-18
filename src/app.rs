@@ -92,6 +92,9 @@ pub struct ObamifyApp {
     worker: Option<Worker>,
 
     #[cfg(target_arch = "wasm32")]
+    worker_start_failed: bool,
+
+    #[cfg(target_arch = "wasm32")]
     inbox: Vec<ProgressMsg>,
 
     gif_recorder: gif_recorder::GifRecorder,
@@ -822,6 +825,8 @@ impl ObamifyApp {
             #[cfg(target_arch = "wasm32")]
             worker: None,
             #[cfg(target_arch = "wasm32")]
+            worker_start_failed: false,
+            #[cfg(target_arch = "wasm32")]
             inbox: Vec::new(),
             current_filter_mode: wgpu::FilterMode::Linear,
 
@@ -849,11 +854,11 @@ impl ObamifyApp {
 
     #[cfg(target_arch = "wasm32")]
     fn ensure_worker(&mut self, _ctx: &egui::Context) {
-        if self.worker.is_some() {
+        if self.worker.is_some() || self.worker_start_failed {
             return;
         }
 
-        let worker = {
+        let worker = 'worker_init: {
             let wasm_script_src = js_sys::Reflect::get(
                 &js_sys::global(),
                 &JsValue::from_str("__wbindgen_script_src"),
@@ -885,7 +890,17 @@ impl ObamifyApp {
 
             let opts = WorkerOptions::new();
             opts.set_type(WorkerType::Module);
-            let w = Worker::new_with_options(&worker_url, &opts).expect("worker");
+            let w = match Worker::new_with_options(&worker_url, &opts) {
+                Ok(worker) => worker,
+                Err(err) => {
+                    self.worker_start_failed = true;
+                    web_sys::console::error_2(&"failed to create worker:".into(), &err);
+                    self.gui.show_error(format!(
+                        "The browser could not start the background WebAssembly worker: {err:?}. The interface can still load, but image processing needs module-worker support. Try opening this page in a current version of Chrome or Firefox."
+                    ));
+                    break 'worker_init None;
+                }
+            };
 
             // ---- onerror: may be ErrorEvent OR a generic Event/JsValue ----
             let onerror = Closure::wrap(Box::new(move |e: JsValue| {
@@ -925,7 +940,10 @@ impl ObamifyApp {
             }
             onmsgerr.forget();
 
-            w
+            Some(w)
+        };
+        let Some(worker) = worker else {
+            return;
         };
 
         //web_sys::console::log_1(&"worker created".into());
