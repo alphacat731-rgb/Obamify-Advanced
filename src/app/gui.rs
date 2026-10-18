@@ -99,7 +99,7 @@ impl GuiState {
         show_icons();
     }
 
-    fn show_error(&mut self, msg: String) {
+    pub(super) fn show_error(&mut self, msg: String) {
         self.error_message = Some(msg);
     }
 
