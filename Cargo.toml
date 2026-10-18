@@ -3,7 +3,7 @@ name = "obamify"
 version = "0.3.0"
 authors = ["Spu7Nix"]
 edition = "2024"
-include = ["LICENSE-MIT", "**/*.rs", "Cargo.toml"]
+include = ["LICENSE", "Cargo.toml", "README.md", "src/**", "assets/**", "index.html", "Trunk.toml", "worker.js"]
 rust-version = "1.85"
 
 [package.metadata.docs.rs]
