@@ -349,7 +349,7 @@ impl Pixel {
 
 const SWAPS_PER_GENERATION_PER_PIXEL: usize = 128;
 const REFERENCE_RESOLUTION: usize = 128;
-const MIN_SWAPS_PER_PIXEL: usize = 8;
+const MIN_SWAPS_PER_PIXEL: usize = 16;
 
 // Keep each generation's work near the 128 × 128 baseline instead of scaling
 // the swap count linearly with every added pixel.
@@ -553,7 +553,8 @@ mod adaptive_budget_tests {
         let at_512 = adaptive_swaps_per_generation(512 * 512);
 
         assert_eq!(at_128, at_256);
-        assert_eq!(at_256, at_512);
+        // At the maximum resolution, retain extra effort per generation.
+        assert_eq!(at_512, at_256 * 2);
     }
 
     #[test]
