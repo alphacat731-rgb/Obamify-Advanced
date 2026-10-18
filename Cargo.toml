@@ -1,7 +1,7 @@
 [package]
 name = "obamify"
 version = "0.3.0"
-authors = ["Spu7Nix"]
+authors = ["alphacat731-rgb", "Spu7Nix"]
 edition = "2024"
 include = ["LICENSE", "Cargo.toml", "README.md", "src/**", "assets/**", "index.html", "Trunk.toml", "worker.js"]
 rust-version = "1.85"
