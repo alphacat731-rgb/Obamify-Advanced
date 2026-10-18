@@ -18,7 +18,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "obamify",
+        "Obamify Advanced",
         native_options,
         Box::new(|cc| Ok(Box::new(obamify::ObamifyApp::new(cc)))),
     )
@@ -46,8 +46,9 @@ fn start_app() {
                 power_preference: egui_wgpu::wgpu::PowerPreference::HighPerformance,
                 device_descriptor: std::sync::Arc::new(|_adapter| {
                     let mut limits = egui_wgpu::wgpu::Limits::downlevel_webgl2_defaults();
-                    // Clamp texture size to 2048 for WebGL compatibility
-                    limits.max_texture_dimension_2d = 4096;
+                    // Stay within the broadly supported WebGL2 texture-size limit.
+                    // Transformation resolution is independent of this display texture.
+                    limits.max_texture_dimension_2d = 2048;
                     egui_wgpu::wgpu::DeviceDescriptor {
                         label: Some("egui_device"),
                         required_features: egui_wgpu::wgpu::Features::default(),
